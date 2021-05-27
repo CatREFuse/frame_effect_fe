@@ -99,6 +99,10 @@ export default {
       console.log("start");
     },
     draging(event) {
+      if (this.isResetting) {
+        return;
+      }
+
       if (this.isDraging == false) {
         return;
       }
@@ -119,8 +123,10 @@ export default {
       }
     },
     dragEnd(event) {
-      let d = new Date();
-      this.time.end = d.getTime();
+      if (this.isResetting) {
+        return;
+      }
+
       this.isDraging = false;
       [this.cursorXOnStart, this.cursorYOnStart] = [0, 0];
       if (this.isInTarget) {
