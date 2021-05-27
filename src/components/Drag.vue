@@ -127,6 +127,9 @@ export default {
         return;
       }
 
+      let d = new Date();
+      this.time.end = d.getTime();
+
       this.isDraging = false;
       [this.cursorXOnStart, this.cursorYOnStart] = [0, 0];
       if (this.isInTarget) {
