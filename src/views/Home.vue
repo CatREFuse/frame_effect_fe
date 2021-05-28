@@ -1,7 +1,11 @@
 <template>
   <div class="home">
     <h1>拖动交互测试区</h1>
-    <Drag :is-snapping="isSnapping" :show-grid="showGrid"></Drag>
+    <Drag
+      :is-snapping="isSnapping"
+      :show-grid="showGrid"
+      :target-on-big="targetOnBig"
+    ></Drag>
     <el-switch
       class="switch"
       v-model="isSnapping"
@@ -15,6 +19,14 @@
       v-model="showGrid"
       active-text="网格显示开"
       inactive-text="网格显示关"
+      active-color="green"
+    >
+    </el-switch>
+    <el-switch
+      class="switch"
+      v-model="targetOnBig"
+      active-text="目标在大网格"
+      inactive-text="目标在小网格"
       active-color="green"
     >
     </el-switch>
@@ -34,6 +46,7 @@ export default {
     return {
       isSnapping: false,
       showGrid: true,
+      targetOnBig: true,
     };
   },
 };

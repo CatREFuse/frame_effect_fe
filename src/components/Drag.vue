@@ -77,6 +77,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    targetOnBig: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -95,8 +99,8 @@ export default {
         y: 100,
       },
       targetPosition: {
-        x: 400,
-        y: 200,
+        x: this.targetOnBig ? 400 : 450,
+        y: this.targetOnBig ? 200 : 250,
       },
       isInTarget: false,
       showNotice: false,
@@ -253,6 +257,15 @@ export default {
         this.releaseShift();
       }
     });
+  },
+  watch: {
+    targetOnBig(oldValue, newValue) {
+      if (newValue) {
+        [this.targetPosition.x, this.targetPosition.y] = [400, 200];
+      } else {
+        [this.targetPosition.x, this.targetPosition.y] = [450, 250];
+      }
+    },
   },
 };
 
