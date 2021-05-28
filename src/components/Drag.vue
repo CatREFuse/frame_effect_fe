@@ -10,7 +10,10 @@
     @mouseup.prevent="dragEnd($event)"
   >
     <div
-      class="box"
+      :class="{
+        box: true,
+        grab: isDraging,
+      }"
       @mousedown.prevent="dragStart($event)"
       :style="{
         left: `${boxPosition.x}px`,
@@ -34,7 +37,7 @@
   </div>
   <div style="display: flex; flex-direction: column; align-items: center">
     <em style="margin-top: 1rem">可以通过 Shift 切换网格大小</em>
-    <p style="margin-top: 0rem">网格大小 {{ small ? "50px" : "100px" }}</p>
+    <p style="margin-top: 0rem">网格大小 {{ small ? "60px" : "160px" }}</p>
 
     <el-switch
       style="margin: 0.5rem"
@@ -47,7 +50,18 @@
 
 <script>
 function generateArray(count, size) {
-  return [...Array(count).keys()].map((item) => item * size);
+  // return [...Array(count).keys()].map((item) => item * size);
+  let targetArray = [];
+  for (let index = 0; index < size; index++) {
+    if (index != 0) {
+      targetArray.push(index * size - 60);
+    }
+    targetArray.push(index * size);
+    if (index == size - 1) {
+      targetArray.push(index * size + 60);
+    }
+  }
+  return targetArray;
 }
 
 let bigRowArray = generateArray(6, 160);
@@ -320,6 +334,14 @@ function getCursorLocation(event, canvasSelector) {
   // background-color: goldenrod;
   z-index: 100;
   // transition: background-color ease-in-out 100ms;
+}
+
+.box:hover {
+  cursor: -webkit-grab;
+}
+
+.grab:hover {
+  cursor: -webkit-grabbing;
 }
 
 .target {
