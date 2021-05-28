@@ -5,6 +5,7 @@
       'small-grid': small && showGrid,
       'big-grid': !small && showGrid,
       'no-grid': !showGrid,
+      grab: isDraging,
     }"
     @mousemove.prevent="draging($event)"
     @mouseup.prevent="dragEnd($event)"
@@ -37,7 +38,7 @@
   </div>
   <div style="display: flex; flex-direction: column; align-items: center">
     <em style="margin-top: 1rem">可以通过 Shift 切换网格大小</em>
-    <p style="margin-top: 0rem">网格大小 {{ small ? "60px" : "160px" }}</p>
+    <p style="margin-top: 0rem">网格大小 {{ small ? "80px" : "160px" }}</p>
 
     <el-switch
       style="margin: 0.5rem"
