@@ -2,7 +2,9 @@
   <div
     :class="{
       canvas: true,
-      'ismall-grid': ismall,
+      'small-grid': small && showGrid,
+      'big-grid': !small && showGrid,
+      'no-grid': !showGrid,
     }"
     @mousemove.prevent="draging($event)"
     @mouseup.prevent="dragEnd($event)"
@@ -30,9 +32,17 @@
       }"
     ></div>
   </div>
-  <button @click="toggleGrid" :style="{ margin: '1rem' }">切换网格大小</button>
-  <p>区域大小 600px 400px</p>
-  <p>网格大小 {{ ismall ? "50px" : "100px" }}</p>
+  <div style="display: flex; flex-direction: column; align-items: center">
+    <em style="margin-top: 1rem">可以通过 Shift 切换网格大小</em>
+    <p style="margin-top: 0rem">网格大小 {{ small ? "50px" : "100px" }}</p>
+
+    <el-switch
+      style="margin: 0.5rem"
+      v-model="small"
+      active-text="小网格"
+      inactive-text="大网格"
+    ></el-switch>
+  </div>
 </template>
 
 <script>
@@ -63,10 +73,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    showGrid: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
-      ismall: false,
+      small: false,
       isDraging: false,
       dragBuffer: {
         cursorXOnStart: 0,
@@ -100,9 +114,6 @@ export default {
     },
   },
   methods: {
-    toggleGrid() {
-      this.ismall = !this.ismall;
-    },
     dragStart(event) {
       if (this.isResetting) {
         return;
@@ -145,7 +156,7 @@ export default {
         // 吸附效果
         this.dragBuffer.boxPositionX = deltaX + this.dragBuffer.boxXOnStart;
         this.dragBuffer.boxPositionY = deltaY + this.dragBuffer.boxYOnStart;
-        if (this.ismall) {
+        if (this.small) {
           // 小网格效果
           this.boxPosition.x = getSnappingValue(
             this.dragBuffer.boxPositionX,
@@ -187,6 +198,10 @@ export default {
         return;
       }
 
+      if (this.isDraging == false) {
+        return;
+      }
+
       let d = new Date();
       this.time.end = d.getTime();
 
@@ -218,6 +233,26 @@ export default {
       this.isResetting = false;
       this.isInTiming = false;
     },
+    pushShift() {
+      this.small = true;
+      console.log("push shift");
+    },
+    releaseShift() {
+      this.small = false;
+      console.log("release");
+    },
+  },
+  created() {
+    document.addEventListener("keydown", (event) => {
+      if (event.key == "Shift") {
+        this.pushShift();
+      }
+    });
+    document.addEventListener("keyup", (event) => {
+      if (event.key == "Shift") {
+        this.releaseShift();
+      }
+    });
   },
 };
 
@@ -240,17 +275,25 @@ function getCursorLocation(event, canvasSelector) {
   border-top: solid gray 1px;
   border-left: solid gray 1px;
   margin: auto;
-  background: -webkit-linear-gradient(top, transparent 99px, gray 1px),
-    -webkit-linear-gradient(left, transparent 99px, gray 1px);
-  background-size: 100px 100px;
+
   position: relative;
   overflow: hidden;
 }
 
-.ismall-grid {
+.big-grid {
+  background: -webkit-linear-gradient(top, transparent 99px, gray 1px),
+    -webkit-linear-gradient(left, transparent 99px, gray 1px);
+  background-size: 100px 100px;
+}
+
+.small-grid {
   background: -webkit-linear-gradient(top, transparent 49px, gray 1px),
     -webkit-linear-gradient(left, transparent 49px, gray 1px);
   background-size: 50px 50px;
+}
+
+.no-grid {
+  border: solid gray 1px;
 }
 
 .box {

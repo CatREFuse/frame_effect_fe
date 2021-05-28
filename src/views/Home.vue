@@ -1,11 +1,20 @@
 <template>
   <div class="home">
     <h1>拖动交互测试区</h1>
-    <Drag :is-snapping="isSnapping"></Drag>
+    <Drag :is-snapping="isSnapping" :show-grid="showGrid"></Drag>
     <el-switch
+      class="switch"
       v-model="isSnapping"
       active-text="网格吸附开"
       inactive-text="网格吸附关"
+      active-color="green"
+    >
+    </el-switch>
+    <el-switch
+      class="switch"
+      v-model="showGrid"
+      active-text="网格显示开"
+      inactive-text="网格显示关"
       active-color="green"
     >
     </el-switch>
@@ -24,7 +33,20 @@ export default {
   data() {
     return {
       isSnapping: false,
+      showGrid: true,
     };
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.switch {
+  margin-bottom: 0.5rem;
+}
+</style>
