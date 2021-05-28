@@ -261,12 +261,12 @@ export default {
   watch: {
     targetOnBig(oldValue, newValue) {
       if (newValue) {
-        [this.targetPosition.x, this.targetPosition.y] = [160 * 4, 160 * 2];
-      } else {
         [this.targetPosition.x, this.targetPosition.y] = [
           160 * 4 + 80,
           160 * 2 + 80,
         ];
+      } else {
+        [this.targetPosition.x, this.targetPosition.y] = [160 * 4, 160 * 2];
       }
     },
   },
