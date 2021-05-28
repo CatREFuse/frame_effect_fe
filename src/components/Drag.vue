@@ -4,8 +4,8 @@
       canvas: true,
       'ismall-grid': ismall,
     }"
-    @mousemove="draging($event)"
-    @mouseup="dragEnd($event)"
+    @mousemove.prevent="draging($event)"
+    @mouseup.prevent="dragEnd($event)"
   >
     <div
       class="box"
@@ -36,7 +36,34 @@
 </template>
 
 <script>
+function generateArray(count, size) {
+  return [...Array(count).keys()].map((item) => item * size);
+}
+
+let bigRowArray = generateArray(6, 100);
+let bigColumnArray = generateArray(4, 100);
+let smallRowArray = generateArray(12, 50);
+let smallColumnArray = generateArray(8, 50);
+
+function getSnappingValue(originValue, gridArray) {
+  let targetValue = 0;
+  let distance = 1000000;
+  gridArray.forEach((gridValue) => {
+    if (Math.abs(originValue - gridValue) <= distance) {
+      distance = Math.abs(originValue - gridValue);
+      targetValue = gridValue;
+    }
+  });
+  return targetValue;
+}
+
 export default {
+  props: {
+    isSnapping: {
+      type: Boolean,
+      default: true,
+    },
+  },
   data() {
     return {
       ismall: false,
@@ -46,6 +73,8 @@ export default {
         cursorYOnStart: 0,
         boxXOnStart: 0,
         boxYOnStart: 0,
+        boxPositionX: 0,
+        boxPositionX: 0,
       },
       boxPosition: {
         x: 100,
@@ -106,12 +135,43 @@ export default {
       if (this.isDraging == false) {
         return;
       }
+
       let [cursorX, cursorY] = getCursorLocation(event, ".canvas");
       let deltaX = cursorX - this.dragBuffer.cursorXOnStart;
       let deltaY = cursorY - this.dragBuffer.cursorYOnStart;
       // console.log(deltaX, deltaY);
-      this.boxPosition.x = deltaX + this.dragBuffer.boxXOnStart;
-      this.boxPosition.y = deltaY + this.dragBuffer.boxYOnStart;
+
+      if (this.isSnapping) {
+        // 吸附效果
+        this.dragBuffer.boxPositionX = deltaX + this.dragBuffer.boxXOnStart;
+        this.dragBuffer.boxPositionY = deltaY + this.dragBuffer.boxYOnStart;
+        if (this.ismall) {
+          // 小网格效果
+          this.boxPosition.x = getSnappingValue(
+            this.dragBuffer.boxPositionX,
+            smallRowArray
+          );
+          this.boxPosition.y = getSnappingValue(
+            this.dragBuffer.boxPositionY,
+            smallColumnArray
+          );
+        } else {
+          // 大网格效果
+          this.boxPosition.x = getSnappingValue(
+            this.dragBuffer.boxPositionX,
+            bigRowArray
+          );
+          this.boxPosition.y = getSnappingValue(
+            this.dragBuffer.boxPositionY,
+            bigColumnArray
+          );
+        }
+        // console.log(this.boxPosition);
+      } else {
+        // 无吸附效果
+        this.boxPosition.x = deltaX + this.dragBuffer.boxXOnStart;
+        this.boxPosition.y = deltaY + this.dragBuffer.boxYOnStart;
+      }
 
       if (
         Math.abs(this.boxPosition.x - this.targetPosition.x) <= 4 &&
