@@ -50,10 +50,10 @@ function generateArray(count, size) {
   return [...Array(count).keys()].map((item) => item * size);
 }
 
-let bigRowArray = generateArray(6, 100);
-let bigColumnArray = generateArray(4, 100);
-let smallRowArray = generateArray(12, 50);
-let smallColumnArray = generateArray(8, 50);
+let bigRowArray = generateArray(6, 160);
+let bigColumnArray = generateArray(4, 160);
+let smallRowArray = generateArray(12, 80);
+let smallColumnArray = generateArray(8, 80);
 
 function getSnappingValue(originValue, gridArray) {
   let targetValue = 0;
@@ -95,12 +95,12 @@ export default {
         boxPositionX: 0,
       },
       boxPosition: {
-        x: 100,
-        y: 100,
+        x: 160,
+        y: 160,
       },
       targetPosition: {
-        x: this.targetOnBig ? 400 : 450,
-        y: this.targetOnBig ? 200 : 250,
+        x: 160 * 4,
+        y: 160 * 2,
       },
       isInTarget: false,
       showNotice: false,
@@ -231,7 +231,7 @@ export default {
       for (let key in this.dragBuffer) {
         this.dragBuffer[key] = 0;
       }
-      this.boxPosition = { x: 100, y: 100 };
+      this.boxPosition = { x: 160, y: 160 };
       this.showNotice = false;
       this.isInTarget = false;
       this.isResetting = false;
@@ -261,9 +261,12 @@ export default {
   watch: {
     targetOnBig(oldValue, newValue) {
       if (newValue) {
-        [this.targetPosition.x, this.targetPosition.y] = [400, 200];
+        [this.targetPosition.x, this.targetPosition.y] = [160 * 4, 160 * 2];
       } else {
-        [this.targetPosition.x, this.targetPosition.y] = [450, 250];
+        [this.targetPosition.x, this.targetPosition.y] = [
+          160 * 4 + 80,
+          160 * 2 + 80,
+        ];
       }
     },
   },
@@ -283,10 +286,11 @@ function getCursorLocation(event, canvasSelector) {
 
 <style lang="scss" scoped>
 .canvas {
-  width: 600px;
-  height: 400px;
+  width: 960px;
+  height: 640px;
   border-top: solid gray 1px;
   border-left: solid gray 1px;
+  border-bottom: solid transparent 1px;
   margin: auto;
 
   position: relative;
@@ -294,15 +298,15 @@ function getCursorLocation(event, canvasSelector) {
 }
 
 .big-grid {
-  background: -webkit-linear-gradient(top, transparent 99px, gray 1px),
-    -webkit-linear-gradient(left, transparent 99px, gray 1px);
-  background-size: 100px 100px;
+  background: -webkit-linear-gradient(top, transparent 159px, gray 1px),
+    -webkit-linear-gradient(left, transparent 159px, gray 1px);
+  background-size: 160px 160px;
 }
 
 .small-grid {
-  background: -webkit-linear-gradient(top, transparent 49px, gray 1px),
-    -webkit-linear-gradient(left, transparent 49px, gray 1px);
-  background-size: 50px 50px;
+  background: -webkit-linear-gradient(top, transparent 79px, gray 1px),
+    -webkit-linear-gradient(left, transparent 79px, gray 1px);
+  background-size: 80px 80px;
 }
 
 .no-grid {
@@ -310,8 +314,8 @@ function getCursorLocation(event, canvasSelector) {
 }
 
 .box {
-  height: 30px;
-  width: 30px;
+  height: 60px;
+  width: 60px;
   position: absolute;
   // background-color: goldenrod;
   z-index: 100;
@@ -319,8 +323,8 @@ function getCursorLocation(event, canvasSelector) {
 }
 
 .target {
-  height: 30px;
-  width: 30px;
+  height: 60px;
+  width: 60px;
   position: absolute;
   background: lightgray;
   z-index: 0;
@@ -333,7 +337,7 @@ function getCursorLocation(event, canvasSelector) {
   background-color: rgb(124, 212, 124);
   color: green;
   font-weight: 500;
-  margin: 320px auto;
+  margin: 500px auto;
   box-shadow: 0px 10px 10px rgba($color: #000000, $alpha: 0.12);
 }
 
