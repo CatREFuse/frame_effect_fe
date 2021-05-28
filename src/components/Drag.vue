@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import { ElMessage } from "element-plus";
+
 function generateArray(count, size) {
   // return [...Array(count).keys()].map((item) => item * size);
   let targetArray = [];
@@ -154,6 +156,7 @@ export default {
         this.boxPosition.x,
         this.boxPosition.y,
       ];
+
       this.isDraging = true;
       console.log("start");
     },
@@ -233,7 +236,11 @@ export default {
           this.targetPosition.y,
         ];
         this.$emit("accomplish");
-        this.showNotice = true;
+        // this.showNotice = true;
+        ElMessage.success({
+          message: `完成目标，用时 ${this.period} ms，即将进行下一轮...`,
+          type: "success",
+        });
         this.isResetting = true;
 
         setTimeout(() => {
@@ -251,14 +258,28 @@ export default {
       this.isInTarget = false;
       this.isResetting = false;
       this.isInTiming = false;
+
+      let configs = require("../assets/coordinate.json");
+      console.log(configs);
+      let key = Math.floor(Math.random() * configs.length);
+      let config = configs[key];
+      console.log(key, ":", config);
+      this.boxPosition = {
+        x: parseInt(config.start[0]),
+        y: parseInt(config.start[1]),
+      };
+      this.targetPosition = {
+        x: parseInt(config.target[0]),
+        y: parseInt(config.target[1]),
+      };
     },
     pushShift() {
       this.small = true;
-      console.log("push shift");
+      // console.log("push shift");
     },
     releaseShift() {
       this.small = false;
-      console.log("release");
+      // console.log("release");
     },
   },
   created() {
@@ -272,6 +293,9 @@ export default {
         this.releaseShift();
       }
     });
+  },
+  mounted() {
+    this.resetDrag();
   },
   watch: {
     targetOnBig(oldValue, newValue) {
@@ -346,11 +370,12 @@ function getCursorLocation(event, canvasSelector) {
 }
 
 .target {
-  height: 60px;
-  width: 60px;
+  height: 56px;
+  width: 56px;
   position: absolute;
-  background: lightgray;
+  // background: rgb(238, 238, 238);
   z-index: 0;
+  border: dashed lightgrey 2px;
 }
 
 .notice-box {
@@ -362,6 +387,7 @@ function getCursorLocation(event, canvasSelector) {
   font-weight: 500;
   margin: 500px auto;
   box-shadow: 0px 10px 10px rgba($color: #000000, $alpha: 0.12);
+  z-index: 1000;
 }
 
 .fade-enter-active,
