@@ -259,18 +259,30 @@ export default {
       this.isResetting = false;
       this.isInTiming = false;
 
-      let configs = require("../assets/coordinate.json");
+      console.log(this.targetOnBig);
+      let configs = this.targetOnBig
+        ? require("../assets/BigGrid.json")
+        : require("../assets/smallGrid.json");
       console.log(configs);
+
       let key = Math.floor(Math.random() * configs.length);
       let config = configs[key];
-      console.log(key, ":", config);
+      console.log(key, config);
+
+      let [startX, startY, targetX, targetY] = [
+        config.start[0],
+        config.start[1],
+        config.target[0],
+        config.target[1],
+      ].map((item) => parseInt(item));
+
       this.boxPosition = {
-        x: parseInt(config.start[0]),
-        y: parseInt(config.start[1]),
+        x: startX,
+        y: startY,
       };
       this.targetPosition = {
-        x: parseInt(config.target[0]),
-        y: parseInt(config.target[1]),
+        x: targetX,
+        y: targetY,
       };
     },
     pushShift() {
@@ -299,14 +311,7 @@ export default {
   },
   watch: {
     targetOnBig(oldValue, newValue) {
-      if (newValue) {
-        [this.targetPosition.x, this.targetPosition.y] = [
-          160 * 4 + 80,
-          160 * 2 + 80,
-        ];
-      } else {
-        [this.targetPosition.x, this.targetPosition.y] = [160 * 4, 160 * 2];
-      }
+      this.resetDrag();
     },
   },
 };
