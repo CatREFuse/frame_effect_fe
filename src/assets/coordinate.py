@@ -20,5 +20,5 @@ def handle_csv(file_name):
 
 
 if __name__ == "__main__":
-    handle_csv('BigGrid')
+    handle_csv('bigGrid')
     handle_csv('smallGrid')
