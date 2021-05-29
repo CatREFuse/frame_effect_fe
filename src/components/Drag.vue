@@ -37,6 +37,7 @@
     ></div>
   </div>
   <div style="display: flex; flex-direction: column; align-items: center">
+    <p>坐标为: {{ boxPosition.x }} {{ boxPosition.y }}</p>
     <em style="margin-top: 1rem">可以通过 Shift 切换网格大小</em>
     <p style="margin-top: 0rem">网格大小 {{ small ? "80px" : "160px" }}</p>
 
@@ -259,15 +260,15 @@ export default {
       this.isResetting = false;
       this.isInTiming = false;
 
-      // console.log(this.targetOnBig);
+      console.log(this.targetOnBig);
       let configs = this.targetOnBig
-        ? require("../assets/BigGrid.json")
+        ? require("../assets/bigGrid.json")
         : require("../assets/smallGrid.json");
-      // console.log(configs);
+      console.log(configs);
 
       let key = Math.floor(Math.random() * configs.length);
       let config = configs[key];
-      // console.log(key, config);
+      console.log(key, config);
 
       let [startX, startY, targetX, targetY] = [
         config.start[0],
