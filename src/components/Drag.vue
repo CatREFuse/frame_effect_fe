@@ -19,7 +19,7 @@
       :style="{
         left: `${boxPosition.x}px`,
         top: `${boxPosition.y}px`,
-        backgroundColor: `${!isInTarget ? 'goldenrod' : 'green'}`,
+        backgroundColor: `${!isInTarget ? '#282A3A' : '#7EBF50'}`,
       }"
     ></div>
 
@@ -158,7 +158,7 @@ export default {
       ];
 
       this.isDraging = true;
-      console.log("start");
+      // console.log("start");
     },
     draging(event) {
       if (this.isResetting) {
@@ -247,7 +247,7 @@ export default {
           this.resetDrag();
         }, 1200);
       }
-      console.log("end");
+      // console.log("end");
     },
     resetDrag() {
       for (let key in this.dragBuffer) {
@@ -259,15 +259,15 @@ export default {
       this.isResetting = false;
       this.isInTiming = false;
 
-      console.log(this.targetOnBig);
+      // console.log(this.targetOnBig);
       let configs = this.targetOnBig
         ? require("../assets/BigGrid.json")
         : require("../assets/smallGrid.json");
-      console.log(configs);
+      // console.log(configs);
 
       let key = Math.floor(Math.random() * configs.length);
       let config = configs[key];
-      console.log(key, config);
+      // console.log(key, config);
 
       let [startX, startY, targetX, targetY] = [
         config.start[0],
