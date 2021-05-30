@@ -56,15 +56,16 @@ import { ElMessage } from "element-plus";
 function generateArray(count, size) {
   // return [...Array(count).keys()].map((item) => item * size);
   let targetArray = [];
-  for (let index = 0; index < size; index++) {
+  for (let index = 0; index < count; index++) {
     if (index != 0) {
       targetArray.push(index * size - 60);
     }
     targetArray.push(index * size);
-    if (index == size - 1) {
-      targetArray.push(index * size + 60);
+    if (index == count - 1) {
+      targetArray.push((index + 1) * size - 60);
     }
   }
+  console.log(targetArray);
   return targetArray;
 }
 
@@ -94,10 +95,6 @@ export default {
     showGrid: {
       type: Boolean,
       default: true,
-    },
-    targetOnBig: {
-      type: Boolean,
-      default: false,
     },
   },
   data() {
@@ -260,10 +257,7 @@ export default {
       this.isResetting = false;
       this.isInTiming = false;
 
-      console.log(this.targetOnBig);
-      let configs = this.targetOnBig
-        ? require("../assets/bigGrid.json")
-        : require("../assets/smallGrid.json");
+      let configs = require("../assets/grid.json");
       console.log(configs);
 
       let key = Math.floor(Math.random() * configs.length);
@@ -309,11 +303,6 @@ export default {
   },
   mounted() {
     this.resetDrag();
-  },
-  watch: {
-    targetOnBig(oldValue, newValue) {
-      this.resetDrag();
-    },
   },
 };
 
