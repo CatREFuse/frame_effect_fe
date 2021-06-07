@@ -22,12 +22,6 @@
         backgroundColor: `${!isInTarget ? '#282A3A' : '#7EBF50'}`,
       }"
     ></div>
-
-    <transition name="fade">
-      <div class="notice-box" v-if="showNotice" key="box1">
-        ✌️完成目标，用时 {{ period }} ms，即将进行下一轮...
-      </div>
-    </transition>
     <div
       class="target"
       :style="{
@@ -36,10 +30,13 @@
       }"
     ></div>
   </div>
-  <div style="display: flex; flex-direction: column; align-items: center">
-    <p>坐标为: {{ boxPosition.x }} {{ boxPosition.y }}</p>
-    <em style="margin-top: 1rem">可以通过 Shift 切换网格大小</em>
-    <p style="margin-top: 0rem">网格大小 {{ small ? "80px" : "160px" }}</p>
+  <div
+    style="display: flex; flex-direction: column; align-items: center"
+    v-if="debug"
+  >
+    <div>坐标为: {{ boxPosition.x }} {{ boxPosition.y }}</div>
+    <div style="margin-top: 1rem">可以通过 Shift 切换网格大小</div>
+    <div style="margin-top: 0rem">网格大小 {{ small ? "80px" : "160px" }}</div>
 
     <el-switch
       style="margin: 0.5rem"
@@ -65,7 +62,7 @@ function generateArray(count, size) {
       targetArray.push((index + 1) * size - 60);
     }
   }
-  console.log(targetArray);
+  // console.log(targetArray);
   return targetArray;
 }
 
@@ -95,6 +92,15 @@ export default {
     showGrid: {
       type: Boolean,
       default: true,
+    },
+    debug: {
+      type: Boolean,
+      default: false,
+    },
+    smallGridOnStart: { type: Boolean, default: false },
+    updateFlag: {
+      type: Number,
+      default: 0,
     },
   },
   data() {
@@ -132,6 +138,7 @@ export default {
       return this.time.end - this.time.begin;
     },
   },
+  emits: ["accomplish"],
   methods: {
     dragStart(event) {
       if (this.isResetting) {
@@ -145,10 +152,8 @@ export default {
 
       this.isInTiming = true;
 
-      [
-        this.dragBuffer.cursorXOnStart,
-        this.dragBuffer.cursorYOnStart,
-      ] = getCursorLocation(event, ".canvas");
+      [this.dragBuffer.cursorXOnStart, this.dragBuffer.cursorYOnStart] =
+        getCursorLocation(event, ".canvas");
 
       [this.dragBuffer.boxXOnStart, this.dragBuffer.boxYOnStart] = [
         this.boxPosition.x,
@@ -233,7 +238,7 @@ export default {
           this.targetPosition.x,
           this.targetPosition.y,
         ];
-        this.$emit("accomplish");
+        this.$emit("accomplish", this.period);
         // this.showNotice = true;
         ElMessage.success({
           message: `完成目标，用时 ${this.period} ms，即将进行下一轮...`,
@@ -258,11 +263,11 @@ export default {
       this.isInTiming = false;
 
       let configs = require("../assets/grid.json");
-      console.log(configs);
+      // console.log(configs);
 
       let key = Math.floor(Math.random() * configs.length);
       let config = configs[key];
-      console.log(key, config);
+      // console.log(key, config);
 
       let [startX, startY, targetX, targetY] = [
         config.start[0],
@@ -280,38 +285,51 @@ export default {
         y: targetY,
       };
     },
-    pushShift() {
-      this.small = true;
-      // console.log("push shift");
+    switch() {
+      this.small = !this.small;
+      console.log("switch");
+      ElMessage.info({
+        message: `切换到${this.small ? "小" : "大"}网格`,
+        type: "success",
+      });
     },
-    releaseShift() {
-      this.small = false;
-      // console.log("release");
+    listener(event) {
+      if (event.shiftKey && event.key == "P") {
+        this.switch();
+      }
     },
   },
   created() {
-    document.addEventListener("keydown", (event) => {
-      if (event.key == "Shift") {
-        this.pushShift();
-      }
-    });
-    document.addEventListener("keyup", (event) => {
-      if (event.key == "Shift") {
-        this.releaseShift();
-      }
-    });
+    document.addEventListener("keydown", this.listener);
+  },
+  unmounted() {
+    console.log("remove");
+    document.removeEventListener("keydown", this.listener);
   },
   mounted() {
+    this.small = this.smallGridOnStart;
     this.resetDrag();
+  },
+  watch: {
+    // smallGridOnStart(newValue, OldValue) {
+    //   this.small = newValue;
+    //   console.log("small:", this.small);
+    // },
+    updateFlag(newValue, OldValue) {
+      this.small = this.smallGridOnStart;
+      console.log("small:", this.small);
+    },
   },
 };
 
 function getCursorLocation(event, canvasSelector) {
   // 获取画布和鼠标相对于窗口的坐标，以计算鼠标相对于画布的坐标
-  let canvasY = document.querySelector(canvasSelector).getBoundingClientRect()
-    .top;
-  let canvasX = document.querySelector(canvasSelector).getBoundingClientRect()
-    .left;
+  let canvasY = document
+    .querySelector(canvasSelector)
+    .getBoundingClientRect().top;
+  let canvasX = document
+    .querySelector(canvasSelector)
+    .getBoundingClientRect().left;
   let cursorX = event.clientX - canvasX;
   let cursorY = event.clientY - canvasY;
   return [cursorX, cursorY];
@@ -371,18 +389,6 @@ function getCursorLocation(event, canvasSelector) {
   // background: rgb(238, 238, 238);
   z-index: 0;
   border: dashed lightgrey 2px;
-}
-
-.notice-box {
-  padding: 12px;
-  width: 400px;
-  border-radius: 16px;
-  background-color: rgb(124, 212, 124);
-  color: green;
-  font-weight: 500;
-  margin: 500px auto;
-  box-shadow: 0px 10px 10px rgba($color: #000000, $alpha: 0.12);
-  z-index: 1000;
 }
 
 .fade-enter-active,

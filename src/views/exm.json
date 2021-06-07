@@ -1,0 +1,52 @@
+{
+    "answer": "on",
+    "test": {
+        "answer": 0,
+        "pass": false
+    },
+    "task-set-1": {
+        "type": "neutral",
+        "data": [
+            {
+                "type": "small",
+                "snapping": false,
+                "time": "300"
+            },
+            {
+                "type": "small",
+                "snapping": false,
+                "time": "300"
+            }
+        ]
+    },
+    "task-set-2": {
+        "type": "snapping",
+        "data": [
+            {
+                "type": "small",
+                "snapping": true,
+                "time": "300"
+            },
+            {
+                "type": "small",
+                "snapping": true,
+                "time": "300"
+            }
+        ]
+    },
+    "task-set-3": {
+        "type": "frame",
+        "data": [
+            {
+                "type": "small",
+                "time": "300",
+                "snapping": false
+            },
+            {
+                "type": "small",
+                "time": "300",
+                "snapping": false
+            }
+        ]
+    }
+}
