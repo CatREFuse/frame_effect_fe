@@ -8,7 +8,13 @@
     <el-row>
       <el-col :span="12">
         <el-card shadow="never">
-          <el-form class="el-form" label-width="80px" :rules="rules">
+          <el-form
+            :model="form"
+            class="el-form"
+            label-width="80px"
+            :rules="rules"
+            ref="form"
+          >
             <el-form-item label="实验编号" prop="id">
               <el-input v-model="form.id" style="width: 100px"></el-input>
             </el-form-item>
