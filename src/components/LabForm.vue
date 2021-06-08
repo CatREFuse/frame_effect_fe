@@ -83,12 +83,12 @@ export default {
   data() {
     return {
       form: {
-        id: "22",
+        id: "",
         group: "A",
         gender: "male",
-        age: "20",
-        monitor: "显示器（26 寸以上）",
-        input: "触控板",
+        age: "",
+        monitor: "",
+        input: "",
       },
       ages: (() => {
         let ages = [];

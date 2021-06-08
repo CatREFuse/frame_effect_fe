@@ -12,9 +12,42 @@
 
   <!-- 操作测试 -->
   <div class="example" v-if="phase == 1">
-    <h1>操作测试</h1>
-    <p>{{ example.description }}</p>
-    <h2>{{ example.title.value }}</h2>
+    <el-row gutter="48" justify="center" type="flex">
+      <el-col :span="24">
+        <h1>实验说明</h1>
+        <div style="columns: 2; column-gap: 24px; column-fill: balance">
+          <p>
+            在实验过程中，请你完成一系列拖拽方块的任务，将交互目标<em>黑色方块</em>拖拽至<em>虚线方块</em>位置，若方块变为<em
+              >绿色</em
+            >
+            则说明任务成功，若没有变化则需要继续调整交互目标，直至完成。
+          </p>
+
+          <p>
+            实验中存在<em>不可见的网格</em>，网格有<em>大小两种尺寸</em>，可以通过按下
+            <em> 左 Shift + P</em>
+            进行转换。
+          </p>
+          <p>
+            另外，任务中存在<em>网格吸附</em>功能，<em>开启后交互目标只能沿着网格顶点移动</em>。
+          </p>
+
+          <p>
+            由于目标总是不在大网格的边上，因此根据两种功能的开启与否，共有三种任务类型：<em>无网格吸附</em>、<em>网格吸附-容易对齐（网格小）</em>、<em>网格吸附-较难对齐（网格大）</em>。请根据不同的任务选择恰当的操作。
+          </p>
+          <p>
+            在完成拖拽任务后，会有数个测试问题，需要您根据自己的偏好进行选择。
+          </p>
+          <p>
+            <em
+              >请注意：在实验过程中，网格是不可见的，这意味着你只能通过尝试拖动来判断是否需要切换网格。</em
+            >
+          </p>
+        </div>
+        <h2>{{ example.title.value }}</h2>
+      </el-col>
+    </el-row>
+
     <drag
       :isSnapping="example.dragConfig.isSnapping"
       :smallGridOnStart="example.dragConfig.smallGridOnStart"
@@ -26,8 +59,8 @@
 
   <!-- 实验区  -->
   <div class="task-set" id="task-set-1" v-if="phase == 2">
-    <h1>
-      Task Set {{ experiment.state.set + 1 }},
+    <h1 v-if="!experiment.frameEffectAnswer.showConcentrateTest">
+      任务组 {{ experiment.state.set + 1 }} - {{ experiment.type.value }}
       {{ experiment.state.number + 1 }}/12
     </h1>
     <drag
@@ -54,6 +87,24 @@
       <span class="dialog-footer">
         <el-button @click="experiment.handleAnswer('on')">开启</el-button>
         <el-button @click="experiment.handleAnswer('off')">不开启</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <el-dialog
+    title="提示"
+    v-model="experiment.frameEffectAnswer.showQuestion2"
+    :show-close="false"
+    :close-on-click-modal="false"
+  >
+    <div style="text-align: left">
+      {{
+        experiment.frameEffectQuestion[experiment.subject.group] || "组别出错"
+      }}
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="experiment.handleAnswer2('on')">开启</el-button>
+        <el-button @click="experiment.handleAnswer2('off')">不开启</el-button>
       </span>
     </template>
   </el-dialog>
@@ -132,7 +183,7 @@
 <script>
 import { reactive, ref } from "@vue/reactivity";
 import LabForm from "../components/LabForm.vue";
-import { inject, watchEffect } from "@vue/runtime-core";
+import { computed, inject, watchEffect } from "@vue/runtime-core";
 import Drag from "../components/Drag.vue";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
@@ -222,12 +273,12 @@ export default {
 
 function useExmaple() {
   let description =
-    "实验任务中存在两种不同的功能设置：网格捕捉（后台设置，不能操作）和网格缩放（按 shift + p 网格将切换疏密）。\n根据两种功能的开启与否，共有三种任务类型：无网格捕捉、网格捕捉-密网格、网格捕捉-疏网格。请根据不同的任务类型选择恰当的操作。";
+    "实验任务中存在两种不同的功能设置：网格吸附（后台设置，不能操作）和网格缩放（按下 左 Shift + P 网格将由大变小）。根据两种功能的开启与否，共有三种任务类型：无网格吸附、网格吸附-容易对齐（网格小）、网格吸附-较难对齐（网格大）。请根据不同的任务选择恰当的操作。";
 
   let titles = [
-    "1. 无网格捕捉任务",
-    "2. 网格捕捉-密网格",
-    "3. 网格捕捉-疏网格",
+    "1. 无网格吸附任务",
+    "2. 网格吸附-容易对齐任务",
+    "3. 网格吸附-较难对齐任务",
   ];
 
   let dragConfig = reactive({
@@ -292,6 +343,7 @@ function useExmaple() {
 function useExperiment(props) {
   let data = reactive({
     answer: "",
+    answer2: "",
     test: {
       answer: 0,
       pass: false,
@@ -327,23 +379,27 @@ function useExperiment(props) {
   });
 
   let frameEffectQuestion = {
-    A: "接下来你将被分配新一轮的12个拖拽任务：其中有33%的概率所有的任务都是容易对齐网格的，还有66%的概率没有任务是容易对齐的。你想要网格吸附功能开启还是关闭？",
-    B: "接下来你将被分配新一轮的12个拖拽任务：其中有66%的概率所有的任务都是较难对齐网格的，还有33%的概率没有任务是较难对齐的。你想要网格吸附功能开启还是关闭？",
+    A: "接下来你将被分配新一轮的 12 个拖拽任务：其中有 33% 的概率所有的任务都是容易对齐网格的，还有 66% 的概率没有任务是容易对齐的。你想要网格吸附功能开启还是关闭？",
+    B: "接下来你将被分配新一轮的 12 个拖拽任务：其中有 66% 的概率所有的任务都是较难对齐网格的，还有 33% 的概率没有任务是较难对齐的。你想要网格吸附功能开启还是关闭？",
   };
 
   let frameEffectAnswer = reactive({
     group: "A",
     answer: "on",
+    answer2: "on",
     testNum: "",
     showQuestion: false,
+    showQuestion2: false,
     showTest: false,
     passTest: false,
   });
 
   let finishFlag = ref(false);
 
+  let endNum = 11;
+
   function finishHandler(event) {
-    if (state.set == 1 && state.number == 11) {
+    if (state.set == 1 && state.number == (endNum ?? 11)) {
       data[`task-set-${state.set + 1}`].data.push({
         type: snapConfigArr[state.number] == 1 ? "small" : "large",
         time: event,
@@ -353,7 +409,7 @@ function useExperiment(props) {
       return;
     }
 
-    if (state.number == 11) {
+    if (state.number == (endNum ?? 11)) {
       if (state.set == 2) {
         // 任务组全部结束
         data[`task-set-${state.set + 1}`].data.push({
@@ -361,7 +417,7 @@ function useExperiment(props) {
           time: event,
           snapping: dragConfig.isSnapping,
         });
-        finishFlag.value = true;
+        frameEffectAnswer.showQuestion2 = true;
       } else {
         // 一个任务组结束
         data[`task-set-${state.set + 1}`].data.push({
@@ -369,6 +425,9 @@ function useExperiment(props) {
           time: event,
           snapping: dragConfig.isSnapping,
         });
+        alert(
+          "本次实验结束，即将进行下一次实验，请休息一会，准备好了请点击确认。"
+        );
         state.set++;
         state.number = 0;
         data[`task-set-${state.set + 1}`].type = state.type;
@@ -471,6 +530,28 @@ function useExperiment(props) {
     showConcentrateTest();
   }
 
+  function handleAnswer2(answer) {
+    // 记录结果
+    console.log("被试的选择是", answer);
+    data.answer2 = answer;
+    frameEffectAnswer.answer2 = answer;
+    frameEffectAnswer.showQuestion2 = false;
+    finishFlag.value = true;
+  }
+
+  let type = computed(() => {
+    switch (state.type) {
+      case "snapping":
+        return "吸附实验";
+      case "neutral":
+        return "中性实验";
+      case "frame":
+        return "框架效应实验";
+      default:
+        return "实验文案出错";
+    }
+  });
+
   return {
     subject,
     state,
@@ -480,8 +561,10 @@ function useExperiment(props) {
     finishFlag,
     finishHandler,
     handleAnswer,
+    handleAnswer2,
     handleTest,
     data,
+    type,
   };
 }
 </script>
@@ -489,8 +572,15 @@ function useExperiment(props) {
 <style lang="scss" scoped>
 .example {
   text-align: left;
+  em {
+    font-weight: 900;
+    // border-bottom: solid 8px #7ebf50;
+    box-shadow: 0 -7px 0 #7ebf50 inset;
+    // text-decoration: underline 6px #7ebf50;
+  }
   p {
-    width: 50%;
+    margin: 0 1rem 1.5rem 1rem;
+    line-height: 150%;
   }
 }
 
