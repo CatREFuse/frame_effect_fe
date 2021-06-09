@@ -396,7 +396,7 @@ function useExperiment(props) {
 
   let finishFlag = ref(false);
 
-  let endNum = 1;
+  let endNum = 11;
 
   function finishHandler(event) {
     if (state.set == 1 && state.number == (endNum ?? 11)) {
